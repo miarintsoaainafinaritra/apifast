@@ -1,0 +1,142 @@
+openapi: 3.0.0
+info:
+  title: E-commerce API
+  version: 1.0.0
+paths:
+  /products:
+    get:
+      tags:
+        - Products
+      summary: Liste des produits
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/QueryParam'
+      responses:
+        '200':
+          description: Liste des produits
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+  /orders:
+    get:
+      tags:
+        - Orders
+      summary: Liste paginée des commandes
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+      responses:
+        '200':
+          description: Liste des commandes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+              examples:
+                orders_example:
+                  summary: Exemple de commandes
+                  value:
+                    - identifier: 1
+                      customer_name: "John Doe"
+                      creation_datetime: "2024-08-25T10:30:00Z"
+                      total_amount: 1499.98
+                    - identifier: 2
+                      customer_name: "Jane Smith"
+                      creation_datetime: "2024-08-24T15:45:00Z"
+                      total_amount: 299.99
+    post:
+      tags:
+        - Orders
+      summary: Créer une commande
+      security:
+        - BasicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+            examples:
+              order_creation:
+                summary: Exemple de création de commande
+                value:
+                  customer_name: "Alice Johnson"
+                  total_amount: 899.99
+      responses:
+        '201':
+          description: Commande créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        name:
+          type: string
+        expiration_datetime:
+          type: string
+          format: date-time
+        price:
+          type: number
+          format: float
+    Order:
+      type: object
+      properties:
+        identifier:
+          type: integer
+        customer_name:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
+        total_amount:
+          type: number
+          format: float
+  parameters:
+    LimitParam:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+      example: 10
+    QueryParam:
+      name: q
+      in: query
+      required: false
+      schema:
+        type: string
+      example: "laptop"
+    PageParam:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      example: 1
+    SizeParam:
+      name: size
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      example: 20
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
